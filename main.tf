@@ -1,4 +1,3 @@
-
 provider "aws" {
   region = "us-east-1"
 }
@@ -97,15 +96,13 @@ resource "aws_eks_cluster" "devopsshack" {
   }
 }
 
-
 resource "aws_eks_addon" "ebs_csi_driver" {
   cluster_name    = aws_eks_cluster.devopsshack.name
   addon_name      = "aws-ebs-csi-driver"
-  
+
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
 }
-
 
 resource "aws_eks_node_group" "devopsshack" {
   cluster_name    = aws_eks_cluster.devopsshack.name
@@ -127,6 +124,11 @@ resource "aws_eks_node_group" "devopsshack" {
   }
 }
 
+# ------------------------
+# IAM Roles & Policies
+# ------------------------
+
+# Cluster IAM Role
 resource "aws_iam_role" "devopsshack_cluster_role" {
   name = "devopsshack-cluster-role"
 
@@ -151,6 +153,12 @@ resource "aws_iam_role_policy_attachment" "devopsshack_cluster_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
 }
 
+resource "aws_iam_role_policy_attachment" "devopsshack_cluster_role_service_policy" {
+  role       = aws_iam_role.devopsshack_cluster_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSServicePolicy"
+}
+
+# Node Group IAM Role
 resource "aws_iam_role" "devopsshack_node_group_role" {
   name = "devopsshack-node-group-role"
 
